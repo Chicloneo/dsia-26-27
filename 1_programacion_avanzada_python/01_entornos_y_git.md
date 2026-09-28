@@ -913,6 +913,7 @@ cat > sesion01.md <<'EOF'
 - git commit -m "Add ..."
 EOF
 
+```
 git switch -c practica/sesion-01
 git add .gitignore README.md sesion01.md
 git status
