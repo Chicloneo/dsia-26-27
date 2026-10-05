@@ -23,3 +23,6 @@ node_modules/
 
 # Notas y guías privadas del profesor (no publicar)
 sesiones/
+
+Datos/calidad_datos.json
+Datos/ventas_limpias.csv
