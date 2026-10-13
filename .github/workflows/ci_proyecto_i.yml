@@ -2,8 +2,20 @@ name: proyecto-i-ci
 
 on:
   push:
-    branches: [main]
+    branches: [main, Santi]
+    paths:
+      - "proyectos/proyecto_i/**"
+      - "pyproject.toml"
+      - "uv.lock"
+      - ".python-version"
+      - ".github/workflows/ci_proyecto_i.yml"
   pull_request:
+    paths:
+      - "proyectos/proyecto_i/**"
+      - "pyproject.toml"
+      - "uv.lock"
+      - ".python-version"
+      - ".github/workflows/ci_proyecto_i.yml"
 
 jobs:
   test:
@@ -12,20 +24,24 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Set up Python from .python-version
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version-file: .python-version
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      - name: Install locked dependencies
+        run: uv sync --locked --no-install-project
 
       - name: Unit tests + coverage gate (>= 60%)
+        working-directory: proyectos/proyecto_i
         run: |
-          pytest -q \
+          uv run --project ../.. --no-sync python -m pytest -q \
             --cov=ventas_app \
-            --cov=internet_app \
             --cov-report=term-missing \
             --cov-fail-under=60
