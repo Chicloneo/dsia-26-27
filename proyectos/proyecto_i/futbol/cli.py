@@ -1,28 +1,14 @@
-"""Programa principal: CSV -> validacion -> preprocess -> CSV de salida.
-
-Se ejecuta asi (desde la raiz del proyecto):
-    uv run python -m ventas_app.cli --input Datos/ventas.csv --output Datos/output/ventas_limpiasj.csv
-
-Pasos del programa:
-  1. read_claims : lee el CSV y valida cada fila con ClaimRequest
-  2. load_model  : carga el modelo  
-  3. escribe el CSV de salida 
-"""
-
 import argparse
 import pandas as pd
 from pydantic import ValidationError
 from pathlib import Path
 
-from ventas_app.contracts import Venta, Venta_expandida
-from ventas_app.preprocess import es_valida, preprocess
-
-# Columnas del CSV de salida, en este orden.
-OUTPUT_COLUMNS = ["fecha","region","producto","unidades","precio_unitario", "importe","cliente_id"]
+from futbol.contracts import Futbolista, Futbolista_salida
+from futbol.preprocess import eliminar_columnas, preprocess
 
 
-def read_sales(path:str) -> list[Venta_expandida]:
-    """Leer el CSV y devolver la lista de ventas validas"""
+def read_footballers(path:str) -> list[Futbolista_salida]:
+    """Leer el CSV y devolver la lista de futbolistas validos"""
 
     ruta = Path(path)
     
@@ -34,18 +20,18 @@ def read_sales(path:str) -> list[Venta_expandida]:
     # Validar cada fila con Venta. Si alguna fila no es valida,
     #   hay que parar con un ValueError cuyo mensaje diga en que LINEA del
     #   fichero esta el problema y cual es (la cabecera es la linea 1).
-    ventas_validadas = []
-    ventas_con_error = []
+    futbolistas_validados = []
+    futbolistas_con_error = []
     for index, row in df.iterrows():
         try:
-            venta_valida = Venta(**row.to_dict())
-            ventas_validadas.append(preprocess(venta_valida))
+            futbolista_valido = Futbolista(**row.to_dict())
+            futbolistas_validados.append(preprocess(futbolista_valido))
         except:
             # Caso en que la fila no es válida
-            ventas_con_error.append(row) #no sé si row o **row.to_dict()
+            futbolistas_con_error.append(row)
 
     # Devolver la lista con todas las ventas validadas.
-    return ventas_validadas, ventas_con_error
+    return futbolistas_validados, futbolistas_con_error
 
 
 """
@@ -66,20 +52,20 @@ def main(argv=None):
     args = parser.parse_args(argv) 
 
     try:
-        ventas_validadas, ventas_con_error = read_sales(args.input) # es una lista de ventas validadas
+        futbolistas_validados, futbolistas_con_error = read_footballers(args.input) # es una lista de ventas validadas
     except ValueError as e:
         print(f"Error: {e}")
         return 2
 
     df_valido = pd.DataFrame(
-        [venta.model_dump() for venta in ventas_validadas]
+        [futbolista.model_dump() for futbolista in futbolistas_validados]
     )
     df_valido.to_csv(args.output, index=False)
 
-    df_error = pd.DataFrame(ventas_con_error)
+    df_error = pd.DataFrame(futbolistas_con_error)
     df_error.to_csv("Datos/output/ventas_con_error.csv", index=False)
 
-    print(f"Hay {len(ventas_validadas)} ventas validas y {len(ventas_con_error)} ventas con error")
+    print(f"Hay {len(futbolistas_validados)} ventas validas y {len(futbolistas_con_error)} ventas con error")
     return 0
 
 

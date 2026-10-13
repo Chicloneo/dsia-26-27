@@ -28,4 +28,5 @@ sesiones/
 **/Datos/ventas_limpias.csv
 .tmp
 **/Datos/output/
-proyectos/proyecto_i/futbol/datos/otros_datos
+proyectos/proyecto_i/futbol/datos/otros_datos/
+proyectos/proyecto_i/futbol/datos/outputs/
