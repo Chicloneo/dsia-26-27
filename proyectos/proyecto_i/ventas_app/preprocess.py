@@ -1,4 +1,4 @@
-from contracts import Venta, Venta_expandida
+from ventas_app.contracts import Venta, Venta_expandida
 import pandas as pd
 
 def es_valida(venta:Venta) -> bool:

@@ -52,6 +52,7 @@ Ejecuta:
 pytest -q
 pytest -q -m "not integration"
 ```
+__Santi__: `-m "not integration"` indica que realice todos los test excepto aquellos que tengan @pytest.mark.integration
 
 ## Parte 4 — Documentar (2 min)
 

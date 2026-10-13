@@ -14,8 +14,8 @@ import pandas as pd
 from pydantic import ValidationError
 from pathlib import Path
 
-from contracts import Venta, Venta_expandida
-from preprocess import es_valida, preprocess
+from ventas_app.contracts import Venta, Venta_expandida
+from ventas_app.preprocess import es_valida, preprocess
 
 # Columnas del CSV de salida, en este orden.
 OUTPUT_COLUMNS = ["fecha","region","producto","unidades","precio_unitario", "importe","cliente_id"]
@@ -25,6 +25,10 @@ def read_sales(path:str) -> list[Venta_expandida]:
     """Leer el CSV y devolver la lista de ventas validas"""
 
     ruta = Path(path)
+    
+    if not ruta.exists():
+        raise FileNotFoundError(f"No existe el fichero de ventas: {ruta}")
+
     df = pd.read_csv(ruta, keep_default_na=False)
 
     # Validar cada fila con Venta. Si alguna fila no es valida,
