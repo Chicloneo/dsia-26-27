@@ -99,6 +99,8 @@ pytest -q
 pytest -vv
 ```
 
+__Santi__: `-q`quiet (poco detalle de los tests), `-vv` very verbose (mucho detalle de cada test)
+
 ```python
 from calculator import add
 
