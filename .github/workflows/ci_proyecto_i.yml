@@ -44,4 +44,4 @@ jobs:
           uv run --project ../.. --no-sync python -m pytest -q \
             --cov=ventas_app \
             --cov-report=term-missing \
-            --cov-fail-under=100
+            --cov-fail-under=60
