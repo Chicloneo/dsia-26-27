@@ -62,7 +62,7 @@ pytest -q --cov=ventas_app --cov=internet_app --cov-report=term-missing --cov-fa
 ```
 
 Enlace al último run verde: <URL>
-```
+
 
 (Opcional) badge:
 
@@ -74,7 +74,7 @@ Enlace al último run verde: <URL>
 
 Elige **una**:
 
-- Baja temporalmente `--cov-fail-under` a `95` **en una rama** y observa el rojo, luego revertir; o
+- Baja temporalmente `--cov-fail-under` a `95` **en una rama** y observa el rojo, luego revertirlo
 - Comenta un test crítico, empuja, mira el fallo, restaura.
 
 Objetivo: ver que CI **bloquea** calidad insuficiente.

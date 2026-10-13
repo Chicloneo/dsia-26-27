@@ -80,3 +80,10 @@ Required test coverage of 60% reached. Total coverage: 98.59%
 13 passed in 0.39s
 
 ```
+
+---
+Hemos construdo nuestro CI con `.github/workflows/ci_proyecto_i.yml`.
+
+Enlace a un run verde: [run](https://github.com/Chicloneo/dsia-26-27/actions/runs/38466630680)
+
+![CI](https://github.com/Chicloneo/dsia-26-27/actions/workflows/ci_proyecto_i.yml/badge.svg?branch=Santi)
