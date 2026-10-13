@@ -60,6 +60,21 @@ def test_preprocess_devuelve_none_si_falta_region():
     assert resultado is None
 
 
+def test_venta_convierte_cadenas_vacias_en_none():
+    venta = Venta(
+        fecha="",
+        region="",
+        producto="A",
+        unidades=1,
+        precio_unitario=10.0,
+        cliente_id="",
+    )
+
+    assert venta.fecha is None
+    assert venta.region is None
+    assert venta.cliente_id is None
+
+
 def test_read_sales_lanza_error_si_path_no_existe(tmp_path):
     missing_path = tmp_path / "no_existe.csv"
 
