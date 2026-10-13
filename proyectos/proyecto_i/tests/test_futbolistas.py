@@ -42,6 +42,13 @@ def _fila_futbolista(**overrides):
     return fila
 
 
+def test_futbolista_acepta_una_fila_valida():
+    futbolista = Futbolista(**_fila_futbolista())
+
+    assert futbolista.player_id == 1
+    assert futbolista.player_code == "jugador-uno"
+
+
 def test_futbolista_traduce_los_codigos_de_las_cinco_ligas():
     casos = {
         "ES1": "La Liga",
