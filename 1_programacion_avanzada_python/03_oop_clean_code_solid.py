@@ -1,5 +1,10 @@
+"""
+Test para probar en CLI:
+uv run 03_oop_clean_code_solid.py --input Datos/ventas.csv --output Datos/datos_limpios.csv
+"""
+
 import argparse
-#from X import limpiar_ventas
+from limpieza_dataset import limpiar_ventas
 
 def main():
     parser = argparse.ArgumentParser()
