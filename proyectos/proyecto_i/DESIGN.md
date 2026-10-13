@@ -1,17 +1,22 @@
-`loader.py` tiene dos funcionalidades:
+`ventas_app`
+---
 
-- La función load recibe el path del csv de entrada y devuelve un dataframe
+`contracts.py` tiene dos contratos:
 
-- Si no existe el path, devuelve un error personalizado `DataLoadError`. 
+- `Venta` para el contrato de entrada (una fila del csv inicial)
+
+- `Venta_extendida` para el contrato de salida. Si es válida, le añadimos el importe total. 
 
 ---
 
-`validator.py` es un contrato de datos (salida) / preprocesado:
+`preprocess.py` es un contrato de datos (salida) / preprocesado:
 
-- `validar_ventas` recibe un DataFrame y devuelve df_valido, df_error
+- `es_valida` verifica que no hay ningún `pd.isna()`.
 
-    - df_valido es un DataFrame con filas validadas según nuestro criterio
+- Devuelve una fila de tipo `Venta_extendida` si es valida.
 
-    - df_error es un DataFrame con el resto de filas
+---
 
-- `limpiar_ventas` recibe un path del csv de entrada y un path del csv de salida. Escribe un csv de salida según la ruta, y adicionalmente un json con metadatos del csv (calidad, cuántas filas válidas, etc.)
+`cli.py`
+
+Recibe un csv de entrada y devuelve un csv con las filas válidas y otro con las inválidas, según los argumentos que le pasemos por la terminal.

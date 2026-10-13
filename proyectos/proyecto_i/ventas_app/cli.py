@@ -1,122 +1,81 @@
+"""Programa principal: CSV -> validacion -> preprocess -> CSV de salida.
+
+Se ejecuta asi (desde la raiz del proyecto):
+    uv run python -m claims_triage.cli --input Datos/ventas.csv --output .tmp/ventas_limpias.csv
+
+Pasos del programa:
+  1. read_claims : lee el CSV y valida cada fila con ClaimRequest
+  2. load_model  : carga el modelo  
+  3. escribe el CSV de salida 
 """
-Sesión 3 (21 sep 2026): OOP, Clean Code y SOLID — ejemplo guiado.
 
-Ejecutar desde la raíz del repo o desde esta carpeta:
-    python 03_oop_clean_code_solid.py
-"""
-from __future__ import annotations
-
-from dataclasses import dataclass
-from pathlib import Path
-from typing import Protocol
-
+import argparse
 import pandas as pd
-from pandas import DataFrame
+from pydantic import ValidationError
+from pathlib import Path
+
+from contracts import Venta, Venta_expandida
+from preprocess import es_valida, preprocess
+
+# Columnas del CSV de salida, en este orden.
+OUTPUT_COLUMNS = ["fecha","region","producto","unidades","precio_unitario", "importe","cliente_id"]
+
+
+def read_sales(path:str) -> list[Venta_expandida]:
+    """Leer el CSV y devolver la lista de ventas validas"""
+
+    ruta = Path(path)
+    df = pd.read_csv(ruta, keep_default_na=False)
+
+    # Validar cada fila con Venta. Si alguna fila no es valida,
+    #   hay que parar con un ValueError cuyo mensaje diga en que LINEA del
+    #   fichero esta el problema y cual es (la cabecera es la linea 1).
+    ventas_validadas = []
+    ventas_con_error = []
+    for index, row in df.iterrows():
+        try:
+            venta_valida = Venta(**row.to_dict())
+            ventas_validadas.append(preprocess(venta_valida))
+        except:
+            # Caso en que la fila no es válida
+            ventas_con_error.append(row) #no sé si row o **row.to_dict()
+
+    # Devolver la lista con todas las ventas validadas.
+    return ventas_validadas, ventas_con_error
 
 
 """
-En la terminal:
+    try:
+        siniestros_validados = read_claims(path)
+    except ValueError:
+        return 2
 
-(dsia-26-27) santiago@Santiagos-MacBook-Pro dir_actual % 
-uv run python -m cli --input Datos/ventas.csv --output Datos/ventas_limpias3.csv
-
-
-Registros válidos: 140 | inválidos: 10
-Importe por región:
-  Este: 33122.53
-  Norte: 22914.63
-  Sur: 21396.35
-  Oeste: 19164.66
-
+    TypeError
 """
+    
 
+def main(argv=None):
+    # Ya hecho: lee los argumentos --input, --output y --model.
+    parser = argparse.ArgumentParser(description="Validacion de ventas")
+    parser.add_argument("--input", required=True)
+    parser.add_argument("--output", required=True)
+    args = parser.parse_args(argv) 
 
-class DataLoadError(Exception):
-    """Error al cargar datos de origen."""
+    try:
+        ventas_validadas, ventas_con_error = read_sales(args.input) # es una lista de ventas validadas
+    except ValueError as e:
+        print(f"Error: {e}")
+        return 2
 
+    df_valido = pd.DataFrame(ventas_validadas)
+    df_valido.to_csv(args.output)
 
-class ValidationError(Exception):
-    """Datos que no cumplen reglas de negocio."""
+    df_error = pd.DataFrame(ventas_con_error)
+    df_error.to_csv("Datos/output/ventas_con_error.csv")
 
-
-@dataclass(frozen=True)
-class SalesRecord:
-    region: str
-    product: str
-    units: float
-    unit_price: float
-
-    @property
-    def amount(self) -> float:
-        return self.units * self.unit_price
-
-
-class SalesRepository(Protocol):
-    """Abstracción de lectura (Dependency Inversion)."""
-
-    def load(path:str) -> DataFrame:
-        ruta = Path(path)
-
-        if not ruta.exists():
-            raise DataLoadError(f"Error al cargar datos: El path '{ruta}' no existe.")
-
-        return pd.read_csv(ruta)
-
-
-class CsvSalesRepository:
-    def __init__(self, path: Path) -> None:
-        self._path = path
-
-    def load(self) -> pd.DataFrame:
-        if not self._path.exists():
-            raise DataLoadError(f"No existe el fichero: {self._path}")
-        return pd.read_csv(self._path)
-
-
-class SalesValidator:
-    """Single Responsibility: solo valida."""
-
-    def split(self, frame: pd.DataFrame) -> tuple[list[SalesRecord], pd.DataFrame]:
-        work = frame.copy()
-        work["unidades"] = pd.to_numeric(work["unidades"], errors="coerce")
-        work["precio_unitario"] = pd.to_numeric(work["precio_unitario"], errors="coerce")
-        ok = work["unidades"].notna() & (work["unidades"] > 0) & (work["precio_unitario"] > 0)
-        valid_rows = [
-            SalesRecord(
-                region=str(row.region),
-                product=str(row.producto),
-                units=float(row.unidades),
-                unit_price=float(row.precio_unitario),
-            )
-            for row in work.loc[ok].itertuples(index=False)
-        ]
-        return valid_rows, work.loc[~ok]
-
-
-class SalesMetrics:
-    """Open/Closed: se pueden añadir métricas sin tocar el validador."""
-
-    def total_by_region(self, records: list[SalesRecord]) -> dict[str, float]:
-        totals: dict[str, float] = {}
-        for record in records:
-            totals[record.region] = totals.get(record.region, 0.0) + record.amount
-        return dict(sorted(totals.items(), key=lambda item: item[1], reverse=True))
-
-
-def main() -> None:
-    #data_path = Path(__file__).resolve().parent / "Datos" / "ventas.csv"
-    data_path = Path("../Datos/ventas.csv")
-    repo: SalesRepository = CsvSalesRepository(data_path)
-    validator = SalesValidator()
-    metrics = SalesMetrics()
-
-    frame = repo.load()
-    records, errors = validator.split(frame)
-    print(f"Registros válidos: {len(records)} | inválidos: {len(errors)}")
-    print("Importe por región:")
-    for region, total in metrics.total_by_region(records).items():
-        print(f"  {region}: {total:.2f}")
+    print(f"Hay {len(ventas_validadas)} ventas validas y {len(ventas_con_error)} ventas con error")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

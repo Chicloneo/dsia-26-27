@@ -26,3 +26,5 @@ sesiones/
 
 **/Datos/calidad_datos.json
 **/Datos/ventas_limpias.csv
+.tmp
+**/Datos/output/
