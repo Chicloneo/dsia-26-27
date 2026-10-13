@@ -1,9 +1,8 @@
-# UBICACION FINAL (ejercicio 1): src/claims_triage/contracts.py
 """Contratos de datos: describen que datos son validos.
 
 Aqui hay DOS modelos de Pydantic:
-  - ClaimRequest    -> una fila del CSV de entrada (EJERCICIO 2)
-  - ClaimPrediction -> el resultado que devuelve el programa (EJERCICIO 4)
+  - ClaimRequest    -> una fila del CSV de entrada 
+  - ClaimPrediction -> el resultado que devuelve el programa 
 
 Un modelo de Pydantic es una clase con campos y tipos. Al crear un objeto,
 Pydantic comprueba los datos y lanza ValidationError si algo no cuadra.

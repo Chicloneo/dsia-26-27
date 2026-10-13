@@ -1,5 +1,7 @@
 `ventas_app/`
 ---
+¡Ojo! Mi estructura no es loader/validator/metrics. Yo he hecho un contrato de datos, un preprocessing de los mismos, y un cli que carga los datos, llama a estos dos módulos, y escribe los datos validados.
+
 
 `contracts.py` tiene dos contratos:
 
@@ -85,5 +87,7 @@ Required test coverage of 60% reached. Total coverage: 98.59%
 Hemos construdo nuestro CI con `.github/workflows/ci_proyecto_i.yml`.
 
 Enlace a un run verde: [run](https://github.com/Chicloneo/dsia-26-27/actions/runs/38466630680)
+
+CI badge:
 
 ![CI](https://github.com/Chicloneo/dsia-26-27/actions/workflows/ci_proyecto_i.yml/badge.svg?branch=Santi)
