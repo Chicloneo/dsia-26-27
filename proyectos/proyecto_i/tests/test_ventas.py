@@ -4,7 +4,7 @@ import pandas as pd
 import pytest
 from pydantic import ValidationError
 
-from ventas_app.cli import read_sales
+from ventas_app.cli import main, read_sales
 from ventas_app.contracts import Venta, Venta_expandida
 from ventas_app.preprocess import preprocess
 
@@ -101,3 +101,66 @@ def test_read_sales_sin_filas_devuelve_dos_listas_vacias(tmp_path):
 
     assert validas == []
     assert invalidas == []
+
+
+def test_venta_expandida_rechaza_importe_menor_que_precio_unitario():
+    with pytest.raises(
+        ValidationError,
+        match="El importe no puede ser menor que el precio unitario",
+    ):
+        Venta_expandida(
+            fecha="2026-01-01",
+            region="Norte",
+            producto="A",
+            unidades=1,
+            precio_unitario=10.0,
+            importe=9.0,
+            cliente_id="C1",
+        )
+
+
+def test_main_escribe_ventas_validas_y_con_error(tmp_path, monkeypatch, capsys):
+    monkeypatch.chdir(tmp_path)
+    (tmp_path / "Datos" / "output").mkdir(parents=True)
+    csv_path = tmp_path / "ventas.csv"
+    pd.DataFrame(
+        [
+            {
+                "fecha": "2026-01-01",
+                "region": "Norte",
+                "producto": "A",
+                "unidades": 2,
+                "precio_unitario": 10.0,
+                "cliente_id": "C1",
+            },
+            {
+                "fecha": "2026-01-02",
+                "region": "Sur",
+                "producto": "B",
+                "unidades": 0,
+                "precio_unitario": 20.0,
+                "cliente_id": "C2",
+            },
+        ]
+    ).to_csv(csv_path, index=False)
+    output_path = tmp_path / "ventas_limpias.csv"
+
+    resultado = main(["--input", str(csv_path), "--output", str(output_path)])
+
+    assert resultado == 0
+    assert pd.read_csv(output_path)["importe"].tolist() == [20.0]
+    errores = pd.read_csv("Datos/output/ventas_con_error.csv")
+    assert len(errores) == 1
+    assert "Hay 1 ventas validas y 1 ventas con error" in capsys.readouterr().out
+
+
+def test_main_devuelve_2_si_read_sales_lanza_value_error(monkeypatch, capsys):
+    def read_sales_con_error(_path):
+        raise ValueError("CSV inválido")
+
+    monkeypatch.setattr("ventas_app.cli.read_sales", read_sales_con_error)
+
+    resultado = main(["--input", "ventas.csv", "--output", "salida.csv"])
+
+    assert resultado == 2
+    assert "Error: CSV inválido" in capsys.readouterr().out

@@ -1,7 +1,7 @@
 """Programa principal: CSV -> validacion -> preprocess -> CSV de salida.
 
 Se ejecuta asi (desde la raiz del proyecto):
-    uv run python -m claims_triage.cli --input Datos/ventas.csv --output .tmp/ventas_limpias.csv
+    uv run python -m ventas_app.cli --input Datos/ventas.csv --output Datos/output/ventas_limpiasj.csv
 
 Pasos del programa:
   1. read_claims : lee el CSV y valida cada fila con ClaimRequest
@@ -71,11 +71,13 @@ def main(argv=None):
         print(f"Error: {e}")
         return 2
 
-    df_valido = pd.DataFrame(ventas_validadas)
-    df_valido.to_csv(args.output)
+    df_valido = pd.DataFrame(
+        [venta.model_dump() for venta in ventas_validadas]
+    )
+    df_valido.to_csv(args.output, index=False)
 
     df_error = pd.DataFrame(ventas_con_error)
-    df_error.to_csv("Datos/output/ventas_con_error.csv")
+    df_error.to_csv("Datos/output/ventas_con_error.csv", index=False)
 
     print(f"Hay {len(ventas_validadas)} ventas validas y {len(ventas_con_error)} ventas con error")
     return 0
