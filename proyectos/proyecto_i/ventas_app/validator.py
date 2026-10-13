@@ -1,5 +1,9 @@
 from dataclasses import dataclass
+import pandas as pd
+from pathlib import Path
+import json
 
+from limpieza_dataset import validar_ventas, limpiar_ventas
 
 class ValidationError(Exception):
     """Datos que no cumplen reglas de negocio."""
@@ -7,18 +11,18 @@ class ValidationError(Exception):
 @dataclass(frozen=True)
 class SalesRecord:
     region: str
-    product: str
-    units: float
-    unit_price: float
+    producto: str
+    unidades: float
+    precio_unitario: float
+    importe: float
 
     @property
-    def amount(self) -> float:
-        return self.units * self.unit_price
+    def importe(self) -> float:
+        return self.unidades * self.precio_unitario
 
     def cumplir_condicion(self):
 
-        condicion_unidades = (self.units > 0) & (self.units% 1 == 0)  # enteros positivos
-        condicion_precio_unitario = self.unit_price > 0 
+        condicion_unidades = (self.unidades > 0) & (self.unidades% 1 == 0)  # enteros positivos
+        condicion_precio_unitario = self.precio_unitario > 0 
 
         return condicion_unidades & condicion_precio_unitario
-    

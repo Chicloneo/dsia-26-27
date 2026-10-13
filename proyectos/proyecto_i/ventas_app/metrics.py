@@ -1,4 +1,4 @@
-from .validator import SalesRecord
+from validator import SalesRecord
 
 
 def total_by_region(records: list[SalesRecord]):

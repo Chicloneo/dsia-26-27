@@ -11,12 +11,13 @@ from pathlib import Path
 from typing import Protocol
 
 import pandas as pd
+from pandas import DataFrame
 
 
 """
 En la terminal:
 
-(dsia-26-27) santiago@Santiagos-MacBook-Pro 1_programacion_avanzada_python % 
+(dsia-26-27) santiago@Santiagos-MacBook-Pro dir_actual % 
 uv run python -m cli --input Datos/ventas.csv --output Datos/ventas_limpias3.csv
 
 
@@ -53,7 +54,13 @@ class SalesRecord:
 class SalesRepository(Protocol):
     """Abstracción de lectura (Dependency Inversion)."""
 
-    def load(self) -> pd.DataFrame: ...
+    def load(path:str) -> DataFrame:
+        ruta = Path(path)
+
+        if not ruta.exists():
+            raise DataLoadError(f"Error al cargar datos: El path '{ruta}' no existe.")
+
+        return pd.read_csv(ruta)
 
 
 class CsvSalesRepository:
