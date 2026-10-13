@@ -106,7 +106,7 @@ class Futbolista(BaseModel):
 # modelo de SALIDA (lo que devuelve el programa)
 # ---------------------------------------------------------------------------
 class Futbolista_salida(BaseModel):
-    """Fila de del csv ventas limpio"""
+    """Fila de del csv futbolistas limpio"""
 
     last_season                         : int = Field(ge=1950, le=2026)
 
@@ -129,7 +129,7 @@ class Futbolista_salida(BaseModel):
     highest_market_value_in_eur         : int = Field(ge=0, le=300_000_000)  
 
     @model_validator(mode="after")
-    def verificar_importe(self):
+    def verificar_market_value(self):
 
         if self.highest_market_value_in_eur < self.market_value_in_eur:
             raise ValueError("La valoración máxima no puede ser menor que la actual")

@@ -1,4 +1,4 @@
-from futbol.contracts import Futbolista, Futbolista_salida
+from contracts import Futbolista, Futbolista_salida
 import pandas as pd
 from pandas import DataFrame
 

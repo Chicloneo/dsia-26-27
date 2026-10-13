@@ -22,7 +22,7 @@ dsia-26-27 = "dsia_26_27:main"
 
 [tool.pytest.ini_options]
 markers = [
-    "integration: test de integracion con datos reales del curso",
+    "integration: test que integra varios componentes o usa datos reales del curso",
 ]
 
 [build-system]

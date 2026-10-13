@@ -1,10 +1,17 @@
+"""
+Ejemplo en terminal:
+
+uv run cli.py --input datos/datos_transfermarkt/players.csv --output datos/outputs/futbolistas_clean.csv
+Hay 38211 futbolistas válidos y 11938 futbolistas con error
+"""
+
 import argparse
 import pandas as pd
 from pydantic import ValidationError
 from pathlib import Path
 
-from futbol.contracts import Futbolista, Futbolista_salida
-from futbol.preprocess import eliminar_columnas, preprocess
+from contracts import Futbolista, Futbolista_salida
+from preprocess import eliminar_columnas, preprocess
 
 
 def read_footballers(path:str) -> list[Futbolista_salida]:
@@ -13,13 +20,10 @@ def read_footballers(path:str) -> list[Futbolista_salida]:
     ruta = Path(path)
     
     if not ruta.exists():
-        raise FileNotFoundError(f"No existe el fichero de ventas: {ruta}")
+        raise FileNotFoundError(f"No existe el fichero: {ruta}")
 
     df = pd.read_csv(ruta, keep_default_na=False)
 
-    # Validar cada fila con Venta. Si alguna fila no es valida,
-    #   hay que parar con un ValueError cuyo mensaje diga en que LINEA del
-    #   fichero esta el problema y cual es (la cabecera es la linea 1).
     futbolistas_validados = []
     futbolistas_con_error = []
     for index, row in df.iterrows():
@@ -30,29 +34,20 @@ def read_footballers(path:str) -> list[Futbolista_salida]:
             # Caso en que la fila no es válida
             futbolistas_con_error.append(row)
 
-    # Devolver la lista con todas las ventas validadas.
+    # Devolver la lista con todos las futbolistas validados.
     return futbolistas_validados, futbolistas_con_error
 
-
-"""
-    try:
-        siniestros_validados = read_claims(path)
-    except ValueError:
-        return 2
-
-    TypeError
-"""
     
 
 def main(argv=None):
     # Ya hecho: lee los argumentos --input, --output y --model.
-    parser = argparse.ArgumentParser(description="Validacion de ventas")
+    parser = argparse.ArgumentParser(description="Validacion de futbolistas")
     parser.add_argument("--input", required=True)
     parser.add_argument("--output", required=True)
     args = parser.parse_args(argv) 
 
     try:
-        futbolistas_validados, futbolistas_con_error = read_footballers(args.input) # es una lista de ventas validadas
+        futbolistas_validados, futbolistas_con_error = read_footballers(args.input)
     except ValueError as e:
         print(f"Error: {e}")
         return 2
@@ -63,9 +58,9 @@ def main(argv=None):
     df_valido.to_csv(args.output, index=False)
 
     df_error = pd.DataFrame(futbolistas_con_error)
-    df_error.to_csv("Datos/output/ventas_con_error.csv", index=False)
+    df_error.to_csv("datos/outputs/futbolistas_con_error.csv", index=False)
 
-    print(f"Hay {len(futbolistas_validados)} ventas validas y {len(futbolistas_con_error)} ventas con error")
+    print(f"Hay {len(futbolistas_validados)} futbolistas válidos y {len(futbolistas_con_error)} futbolistas con error")
     return 0
 
 
