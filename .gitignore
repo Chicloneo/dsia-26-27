@@ -23,3 +23,5 @@ node_modules/
 
 # Notas y guías privadas del profesor (no publicar)
 sesiones/
+
+proyectos/proyecto_i/futbol/datos/*
