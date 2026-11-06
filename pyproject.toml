@@ -17,3 +17,8 @@ dsia-26-27 = "dsia_26_27:main"
 [build-system]
 requires = ["uv_build>=0.12.16,<0.13.0"]
 build-backend = "uv_build"
+
+[tool.uv.workspace]
+members = [
+    "Proyecto-1",
+]
